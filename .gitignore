@@ -1,0 +1,82 @@
+# Created by https://www.toptal.com/developers/gitignore/api/jupyternotebooks
+# Edit at https://www.toptal.com/developers/gitignore?templates=jupyternotebooks
+
+### JupyterNotebooks ###
+# gitignore template for Jupyter Notebooks
+# website: http://jupyter.org/
+
+.DS*
+0.3*
+
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Uncleaned diag files
+diag_nans_extremes*
+diag_final_files*
+
+
+# html files (created by dask profilers usually)
+*html
+
+# ESMF log files
+*ESMF_Log*
+
+# The replication data 
+/aux_data/hle_repl/
+aux_data/hle_repl/
+Data/
+/aux_data/HLE*
+ch22_data/
+*.gpkg
+gpw*/
+
+# Other data files
+*.nc
+*.nc4
+*.dta
+*.csv
+*.zarr
+*.tif
+*.ster
+
+# xagg weightmap files
+wm_*/
+
+# Untitled files
+Untitled*
+
+# Local presentations
+presentations/
+
+# dir_list.csv, which will be different for everyone
+dir_list.csv
+
+# netcdf files
+*.nc
+
+# py cache
+*pyc
+*pycache*
+*/__pycache__/*
+
+# Remove previous ipynb_checkpoints
+#   git rm -r .ipynb_checkpoints/
+
+# End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks
+
+# Figures 
+# Keep for now
+# Don't keep pdfs
+*pdf
+
+# Nohup
+nohup*
+
+# Temporary run files
+run*.py
+run*.pbs
