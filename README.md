@@ -9,7 +9,7 @@ For more information, see the BCD-ME pages on Arraylake (and keep an eye out for
 
 For sample code on how to access the BCD-ME, see [code/sample_data_access.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access.ipynb). 
 
-For best results, we recommend creating a new conda environment using the included `environment.yml` file: 
+For best results, we recommend creating a new conda environment using the included `code/environment.yml` file: 
 
 ```
 conda env create -f environment.yml
