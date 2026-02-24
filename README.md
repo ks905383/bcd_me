@@ -2,7 +2,10 @@
 
 This repository contains sample notebooks detailing how to access the BCD-ME and the code necessary to replicate it. 
 
-For more information, see the BCD-ME pages on Arraylake (and keep an eye out for our upcoming preprint): 
+For more information, see our preprint: 
+- [Schwarzwald et al., submitted to _Nature Sci. Data_](https://eartharxiv.org/repository/view/11902/)
+
+and see the BCD-ME pages on Arraylake (and keep an eye out for our upcoming preprint): 
 - [BCD-ME 1° bias-corrected (QDM) temperature time series](https://app.earthmover.io/marketplace/696aaa41490a002f0d47b8a1)
 - [BCD-ME 0.25° bias-corrected (QDM) and downscaled temperature statistics](https://app.earthmover.io/marketplace/696aaa63490a002f0d47b8a4)
 
