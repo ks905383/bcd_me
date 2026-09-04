@@ -27,7 +27,7 @@ mamba env create -f environment.yml
 
 ### Replication code usage
 To replicate the processing of the BCD-ME or the analysis in the data descriptor: 
-- ERA5, GMFD, and JRA-3Q reanalysis data can be downloaded using `preprocess_ERA5.ipynb`, `preprocess_GMFD.ipynb`, and `preprocess_JRA3Q.ipynb`, which assume access to the NCAR HPC system. These data can alternatively be downloaded using external links from their respective GDEX pages, or through the original published, but must be preprocessed as in these files.
+- ERA5, GMFD, and JRA-3Q reanalysis data can be downloaded using `preprocess_ERA5.ipynb`, `preprocess_GMFD.ipynb`, and `preprocess_JRA3Q.ipynb` (which, like the files below, can be found in the `code` subdirectory), which assume access to the NCAR HPC system. These data can alternatively be downloaded using external links from their respective GDEX pages, or through the original published, but must be preprocessed as in these files
 - MERRA-2 reanalysis data was downloaded from the NASA GES DISC [archive](https://doi.org/10.5067/9SC1VNTWGWV3)
 - CMIP6 ESM data was downloaded from the Pangeo data store through `preprocess_cmip6_general.ipynb`
 - 1$^\circ$ bias-corrected time series were created through `bias_correct_qdm.ipynb`
@@ -39,7 +39,7 @@ To replicate the processing of the BCD-ME or the analysis in the data descriptor
 - Diagnostics and verifications were run through `diag_final_files.ipynb` and `diag_nans_extremes.ipynb`
 - Data was collated through `transfer_to_campaign.ipynb` and uploaded to arraylake through `prep_for_earthmover.ipynb`
 
-A .csv named `dir_list.csv` is needed to run these notebooks, giving important paths. This csv should contain two columns, `dir_name` and `dir_path`, and rows corresponding to:
+A .csv named `code/dir_list.csv` is needed to run these notebooks, giving important paths. This csv should contain two columns, `dir_name` and `dir_path`, and rows corresponding to:
 - `figs`: path to `figures` in this directory
 - `aux`: path to `aux_data` in this directory
 - `aux_bigmem`: path to scratch storage that can handle ~100GB of data
