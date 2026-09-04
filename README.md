@@ -3,10 +3,11 @@
 This repository contains sample notebooks detailing how to access the BCD-ME and the code necessary to replicate it. 
 
 For more information, see our preprint: 
-- [Schwarzwald et al., submitted to _Nature Sci. Data_](https://eartharxiv.org/repository/view/11902/)
+- [Schwarzwald et al., under revision at _Sci. Data_](https://eartharxiv.org/repository/view/11902/)
 
-and see the BCD-ME pages on GDEX:
+and see the BCD-ME pages on NSF NCAR GDEX:
 - [BCD-ME on GDEX](https://gdex.ucar.edu/datasets/d164444/dataaccess/)
+  
 and the Earthmover Data Marketplace: 
 - [BCD-ME 1° bias-corrected (QDM) temperature time series](https://app.earthmover.io/marketplace/696aaa41490a002f0d47b8a1)
 - [BCD-ME 0.25° bias-corrected (QDM) and downscaled temperature statistics](https://app.earthmover.io/marketplace/696aaa63490a002f0d47b8a4)
