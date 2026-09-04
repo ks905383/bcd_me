@@ -72,7 +72,7 @@ def _create_filenames(gwl_info_rea,params_var,params_proc,file_rows=None):
                    'qdiff_mod':(dir_list['proc']+mod+'/'+
                            '_'.join(['q'+params_var['var']+'diff',params_var['freq'],
                                      mod,exp,run,'GWL'+re.sub(r'\.','-',str(gwl_info_rea['warming_level']))])+
-                                    'mod-mod_base'+params_proc['mod_rea']),
+                                    'mod-mod'),
                    'biascrct_qm':(dir_list['proc']+mod+'/'+
                            '_'.join([params_var['var'],params_var['freq'],
                                     mod,exp,run,'ALLGWLS','projQM-base'+params_proc['mod_rea']])),
