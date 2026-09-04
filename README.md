@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1162734427.svg)](https://doi.org/10.5281/zenodo.22311273)
+
 # The Bias-Corrected and Downscaled Massive Ensemble (BCD-ME)
 
 This repository contains sample notebooks detailing how to access the BCD-ME and the code necessary to replicate it. 
