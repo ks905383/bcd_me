@@ -38,7 +38,7 @@ modlists = {'qdm':['ACCESS-CM2','ACCESS-ESM1-5','BCC-CSM2-MR',
 
 
 #flagged_members = xr.open_dataset(f'{dir_list['aux']}problem_member_flags.nc')
-def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,verbose=False):
+def filter_problems(dss,flagged_members=None,flag_var = None,return_flags = False,verbose=False):
     ''' Filter for flagged problem ensemble mmebers
 
     Given `problem_members_all` and input data `dss`, returns 
@@ -83,7 +83,7 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
     '''
 
     if flagged_members is None:
-        pm_source_url = 'https://github.com/ks905383/bcd_me/blob/main/bcd_me_helper_pack.zip?raw=True'
+        pm_source_url = 'https://github.com/ks905383/bcd_me/blob/main/bcd_me_problem_members.zip?raw=True'
         def fetch_problem_members(url = pm_source_url):
             files = pooch.retrieve(
                 url=url,
@@ -116,7 +116,7 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
     flagged_members = flagged_members.set_index(idv = ['model','experiment','run'])
 
     # Get the problem members that are present in the input data
-    join_idvs = [idv for idv in flagged_members.idfv.values if idv in list(dss_index.values)]
+    join_idvs = [idv for idv in flagged_members.idv.values if idv in list(dss_index.values)]
     
     flags = []
     for var in flagged_members:
@@ -129,6 +129,12 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
         idv_tmp = idv_tmp.to_dataset(name=var)
         flags.append(idv_tmp)
     flags = xr.merge(flags)
+
+    num_problems = flags.sum()
+    if verbose and np.any((num_problems>0).to_dataarray()):
+        print(f'Found problem members in variables: {', '.join([f'{var} ({num_problems[var].values} members)' 
+                                                               for var in num_problems if num_problems[var]>0])}'+
+             '; they (or their derivatives) will be replaced with nans.')
     # Switch from True = problem to True = keep
     flags = ~flags
 
@@ -136,7 +142,7 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
         matched_vars = []
         if set([k for k in flags]) == set([k for k in dss]):
             dss = dss.where(flags)
-            matched_vars = [k for k in dss]
+            matched_vars = [k for k in dss if num_problems[k]>0]
         else:
             varconnects = {'tasmaxbinF':'tasmax',
                            'tasmaxbinC':'tasmax',
@@ -151,7 +157,8 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
                         # Deleting level of MultiIndex warning. Not sure what it's warning about
                         # since the multiindex is unchanged here
                         flags[v] = flags[varconnects[v]]
-                    matched_vars.append(v)
+                    if num_problems[varconnects[v]]>0:
+                        matched_vars.append(v)
                 dss = dss.where(flags)
             else:
                 raise KeyError(('Cannot match flag variables (tas, tasmax) to input data variables (either tas, tasmax or '+
@@ -163,8 +170,6 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
         dss = dss.where(flags[flag_var])
 
     if verbose:
-        print((f'{len(join_idvs)} out of {flagged_members.sizes['idv']} total problem ensemble members identified in '+
-                   f'the input dataset.')) 
         if flag_var is None:
             print((f'Filtering matched variables {', '.join(matched_vars)}.'))
         else:
