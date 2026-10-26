@@ -4,8 +4,8 @@
 
 This repository contains sample notebooks detailing how to access the BCD-ME and the code necessary to replicate it. 
 
-For more information, see our preprint: 
-- [Schwarzwald et al., accepted at _Sci. Data_](https://eartharxiv.org/repository/view/11902/)
+For more information, see the data descriptor: 
+- [Schwarzwald et al., 2026, _Sci. Data_](https://www.nature.com/articles/s41597-026-08391-w)
 
 and see the BCD-ME pages on NSF NCAR GDEX:
 - [BCD-ME on GDEX](https://gdex.ucar.edu/datasets/d164444/dataaccess/)
@@ -15,7 +15,7 @@ and the Earthmover Data Marketplace:
 - [BCD-ME 0.25° bias-corrected (QDM) and downscaled temperature statistics](https://app.earthmover.io/marketplace/696aaa63490a002f0d47b8a4)
 
 
-For sample code on how to access the BCD-ME, see [code/sample_data_access.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access.ipynb). 
+For sample code on how to access the BCD-ME, see [code/sample_data_access_gdex.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access_gdex.ipynb) for access through GDEX or [code/sample_data_access_earthmover.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access_earthmover.ipynb) for access through Earthmover. Both notebooks also contain slightly different examples for some of the many things one can do with this data!
 
 For best results, we recommend creating a new conda environment using the included `code/environment.yml` file: 
 
@@ -27,6 +27,28 @@ conda env create -f environment.yml
 mamba env create -f environment.yml
 
 ```
+
+### Known issues
+We strive to provide a perfect dataset, but every once in a while, a bug slips through our nets. These bugs are patched regularly on Earthmover, but take longer to patch on GDEX. We have a helper function that nans out any known issues, see [code/sample_data_access_gdex.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access_gdex.ipynb) for details. 
+
+#### On Earthmover
+- None known
+
+#### On GDEX
+- `qdm`: 
+	- Some members with faulty data (3 for `tas`, 6 for `tasmax`), can be filtered through `bcd_me_helpers.filter_problems()`
+- `qdm-qplad`:
+	- Some members with faulty data (8 for `tas`-based variables, 6 for `tasmax`-based variables), can be filtered through `bcd_me_helpers.filter_problems()`
+- `qdm-byyr`:
+	- Some files with faulty data (7 for `tas`, 3 for `tasmax`), can be filtered through `bcd_me_helpers.filter_problems()` 
+	- GWL metadata confusing; these files are stored by calendar year, not GWL (with GWL 0.61 == 1982-2001)
+
+### Citing the BCD-ME
+If you use the BCD-ME, please cite both the data descriptor in _Scientific Data_ and also the exact source of the data (GDEX, Earthmover, etc.). If you can, cite the version as well (present in the metadata of each file).  The data descriptor provides more details. 
+
+
+### License
+Data bias-corrected and downscaled to ERA5, MERRA-2, and GMFD is available under a [CC BY](https://creativecommons.org/licenses/by/4.0/) 4.0 Creative Commons Attribution license (in other words, you may do what you want with it as long as you attribute where you got the data from and if any changes were made, and cite us appropriately). Data bias-corrected and downscaled to JRA-3Q is available under a [CC BY-NC-SA](https://creativecommons.org/licenses/by-nc-sa/4.0/) 4.0 license ("non-commercial, share-alike", which means you may only use it for non-commerical means, and if you remix, transform, or build upon the material, you have to share it under the same or a compatible license). 
 
 ### Replication code usage
 To replicate the processing of the BCD-ME or the analysis in the data descriptor: 
