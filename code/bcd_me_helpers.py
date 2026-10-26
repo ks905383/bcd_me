@@ -1,6 +1,7 @@
 import os
 import re
 import numpy as np
+import pooch
 import fsspec
 import dask
 import zarr
@@ -50,9 +51,14 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
         a BCD-ME store or subset or concatenated set of BCD-ME stores.
         Must have the `idv` dimension with model, experiment, run info.
 
-    flagged_members : xr.Datatset or str
+    flagged_members : None (default) or xr.Datatset or str
         The dataset of flagged "problem" BCD-ME members. If a string, 
         assumes string is the filename of this file and loads it. 
+
+        If None (default), then the most recent set of problem_member 
+        details will be accessed and cached (or reloaded from cache) 
+        from the BCD-ME GitHub, with the BCD-ME "set" (i.e., qdm, qdm-qplad`
+        etc...) inferred from `dss` characteristics.  
 
     flag_var : str, by default None
         If not None, `tas` or `tasmax`, corresponding to the flags from
@@ -76,6 +82,33 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
         if `return_flags==True`, the flags used to filter the dss
     '''
 
+    if flagged_members is None:
+        pm_source_url = 'https://github.com/ks905383/bcd_me/blob/main/bcd_me_helper_pack.zip?raw=True'
+        def fetch_problem_members(url = pm_source_url):
+            files = pooch.retrieve(
+                url=url,
+                known_hash=None,             
+                path=pooch.os_cache('problem_members'),
+                processor=pooch.Unzip(),
+            )
+            return files
+        
+        files = fetch_problem_members()
+        pm_fns = [fn for fn in files if 'problem_member' in fn]
+        
+        qdm_dims = ['dayofyear']
+        qplad_dims = ['binF','binC','degree']
+        if np.any([k in dss.gwl.values for k in [2010,2040,2070]]):
+            flagged_members = [fn for fn in pm_fns if re.search(r'qdm\-byyr',fn)][0]
+            print('Assuming target data is from the `qdm-byyr` BCD-ME set...')
+        elif np.any([k in dss.sizes for k in qdm_dims]) or np.all([k not in dss.sizes for k in qplad_dims]):
+            flagged_members = [fn for fn in pm_fns if re.search(r'qdm\.',fn)][0]
+            print('Assuming target data is from the `qdm` BCD-ME set...')
+        else:
+            flagged_members = [fn for fn in pm_fns if re.search(r'qdm\-qplad',fn)][0]
+            print('Assuming target data is from the `qdm-qplad` BCD-ME set...')
+
+
     if type(flagged_members) == str:
         flagged_members = xr.open_dataset(flagged_members)
 
@@ -83,7 +116,7 @@ def filter_problems(dss,flagged_members,flag_var = None,return_flags = False,ver
     flagged_members = flagged_members.set_index(idv = ['model','experiment','run'])
 
     # Get the problem members that are present in the input data
-    join_idvs = [idv for idv in flagged_members.idv.values if idv in list(dss_index.values)]
+    join_idvs = [idv for idv in flagged_members.idfv.values if idv in list(dss_index.values)]
     
     flags = []
     for var in flagged_members:
