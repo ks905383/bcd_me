@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/1162734427.svg)](https://doi.org/10.5281/zenodo.22311273)
+[![Paper](https://shields.io)](https://www.nature.com/articles/s41597-026-08391-w) [![Zenodo](https://zenodo.org/badge/1162734427.svg)](https://doi.org/10.5281/zenodo.22311273)
 
 # The Bias-Corrected and Downscaled Massive Ensemble (BCD-ME)
 
