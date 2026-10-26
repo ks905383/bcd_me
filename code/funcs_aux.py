@@ -1,6 +1,7 @@
 import os
 import re
 import numpy as np
+import pandas as pd
 import fsspec
 import dask
 import zarr
@@ -58,27 +59,35 @@ def _create_filenames(gwl_info_rea,params_var,params_proc,file_rows=None):
         # Verify provided filepaths
         file_rows,mod,run,exp = _verify_file_rows(file_rows)
 
+        # index_type as year or gwl
+        if ('index_type' in params_proc) and (params_proc['index_type'] == 'year'):
+            all_index_str = 'ALLTIMEPERIODS'
+            single_index_str = 'TIMEPERIOD'
+        else:
+            all_index_str = 'ALLGWLS'
+            single_index_str = 'GWL'
+
         # Get filenames for temporary files 
         fns_out = {**fns_out,'pctof':(dir_list['proc']+mod+'/'+
                            '_'.join(['pctof'+params_var['var'],params_var['freq'],
-                                     mod,exp,run,'ALLGWLS'])),
+                                     mod,exp,run,all_index_str])),
                    'reshp_mod':(dir_list['proc']+mod+'/'+
                            '_'.join([params_var['var'],params_var['freq'],
                                      mod,exp,run,'CACHE-RESHAPE'])),
                    'qdiff':(dir_list['proc']+mod+'/'+
                            '_'.join(['q'+params_var['var']+'diff',params_var['freq'],
-                                     mod,exp,run,'GWL'+re.sub(r'\.','-',str(gwl_info_rea['warming_level']))])+
+                                     mod,exp,run,single_index_str+re.sub(r'\.','-',str(gwl_info_rea['warming_level']))])+
                                     'projQDM-base'+params_proc['mod_rea']),
                    'qdiff_mod':(dir_list['proc']+mod+'/'+
                            '_'.join(['q'+params_var['var']+'diff',params_var['freq'],
-                                     mod,exp,run,'GWL'+re.sub(r'\.','-',str(gwl_info_rea['warming_level']))])+
+                                     mod,exp,run,single_index_str+re.sub(r'\.','-',str(gwl_info_rea['warming_level']))])+
                                     'mod-mod'),
                    'biascrct_qm':(dir_list['proc']+mod+'/'+
                            '_'.join([params_var['var'],params_var['freq'],
-                                    mod,exp,run,'ALLGWLS','projQM-base'+params_proc['mod_rea']])),
+                                    mod,exp,run,all_index_str,'projQM-base'+params_proc['mod_rea']])),
                    'biascrct_qdm':(dir_list['proc']+mod+'/'+
                            '_'.join([params_var['var'],params_var['freq'],
-                                    mod,exp,run,'ALLGWLS','projQDM-base'+params_proc['mod_rea']]))}
+                                    mod,exp,run,all_index_str,'projQDM-base'+params_proc['mod_rea']]))}
         # Get filename for downscaled file (currently unused in workflow, 
         # except to generate below)
         for typ in ['qm','qdm']:
@@ -110,7 +119,10 @@ def _create_filenames(gwl_info_rea,params_var,params_proc,file_rows=None):
 
     return fns_out
 
-def _load_gwls(gwl_source = 'leap_esgf',dir_list = get_params()):
+def _load_gwls(gwl_source = 'leap_esgf',dir_list = get_params(),
+               fixed_year_params = {'warming_level':[0.61,2010,2040,2070],
+                      'start_year':[1982,2000,2030,2060],
+                      'end_year':[2001,2019,2049,2079]}):
     ''' Get years corresponding to GWLs for each model-run
 
     Parameters
@@ -119,6 +131,8 @@ def _load_gwls(gwl_source = 'leap_esgf',dir_list = get_params()):
         If `leap_esgf`, then gwl info is taken from the `gwl_ann_*_wsomeESGFruns.nc` file
         If `leap_amon`, then gwl info is taken from the `gwl_ann_*_fromAmon.nc` file
         If `mathause`, then gwl info is taken from Mathias Hauser's GWLs
+        If `fixed_years`, then gwl info is set the same for each run in _fromAmon, based on
+                          `fixed_year_params` dict. 
 
     dir_list : by default the output of get_params()
 
@@ -131,8 +145,8 @@ def _load_gwls(gwl_source = 'leap_esgf',dir_list = get_params()):
 
 
     '''
-    if gwl_source not in ['leap_esgf','leap_amon','mathause']:
-        raise KeyError(f'`gwl_source` must in be in ["leap_esgf","leap_amon","mathause"] but is {gwl_source}')
+    if gwl_source not in ['leap_esgf','leap_amon','mathause','fixed_years']:
+        raise KeyError(f'`gwl_source` must in be in ["leap_esgf","leap_amon","mathause","fixed_years"] but is {gwl_source}')
     
     if gwl_source in ['leap_esgf','leap_amon']:
         if gwl_source == 'leap_esgf':
@@ -175,7 +189,7 @@ def _load_gwls(gwl_source = 'leap_esgf',dir_list = get_params()):
         gwl_info['end_year'] = gwl_info['end_year'].astype(int)
         gwl_info = gwl_info.reset_index().drop('memberid',axis=1).set_index(['model','ensemble'])#,'exp','warming_level'])
     elif gwl_source == 'mathause':
-        mathause_gwls = yaml.load(open('../aux_data/mathause-cmip_warming_levels-f47853e/warming_levels/'+
+        mathause_gwls = yaml.load(open(dir_list['aux']+'mathause-cmip_warming_levels-f47853e/warming_levels/'+
                    'cmip6_all_ens/cmip6_warming_levels_all_ens_1850_1900.yml'),
                   Loader=yaml.CLoader)
         def load_gwls(gwl_info):
@@ -190,6 +204,25 @@ def _load_gwls(gwl_source = 'leap_esgf',dir_list = get_params()):
             return gwl_info
         
         gwl_info = load_gwls(mathause_gwls)
+
+    elif gwl_source == 'fixed_years':
+        gwls = xr.open_dataset(dir_list['aux']+'gwl_ann_CMIP6_ALLEXPs_ALLRUNs_1860-2090_fromAmon.nc')
+
+        base_timeframes = pd.DataFrame(fixed_year_params)
+        
+        gwl_info = []
+        for idx in range(gwls.sizes['memberid']):
+            gwl_info_tmp = base_timeframes.copy()
+            for v in ['model','experiment','run']:
+                gwl_info_tmp[v] = gwls.isel(memberid=idx)[v].values
+            gwl_info.append(gwl_info_tmp)
+        
+        gwl_info = pd.concat(gwl_info)
+        
+        gwl_info = gwl_info.set_index(['model','run'])
+
+        gwl_info = gwl_info.reset_index().rename({'run':'ensemble','experiment':'exp'},axis=1).set_index(['model','ensemble'])
+
 
     return gwl_info
 

@@ -59,6 +59,13 @@ dir_list.csv
 # netcdf files
 *.nc
 
+# helper pack source
+aux_data/bcd_me_helper_pack/
+
+# tmp files / copies
+*tmp*
+*Copy*
+
 # py cache
 *pyc
 *pycache*
