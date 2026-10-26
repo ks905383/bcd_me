@@ -29,7 +29,7 @@ mamba env create -f environment.yml
 ```
 
 ### Known issues
-We strive to provide a perfect dataset, but every once in a while, a bug slips through our nets. These bugs are patched regularly on Earthmover, but take longer to patch on GDEX. We have a helper function that nans out any known issues, see [code/sample_data_access_gdex.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access_gdex.ipynb) for details. 
+We strive to provide a perfect dataset, but every once in a while, a bug slips through our nets. These bugs are patched regularly on Earthmover, but take longer to patch on GDEX. We have a helper function that nans out any known issues, see [code/sample_data_access_gdex.ipynb](https://github.com/ks905383/bcd_me/blob/main/code/sample_data_access_gdex.ipynb) for details. If you run into a bug that's not covered below, please open an Issue in the [Issues](https://github.com/ks905383/bcd_me/issues) tab above. 
 
 #### On Earthmover
 - None known
@@ -37,6 +37,7 @@ We strive to provide a perfect dataset, but every once in a while, a bug slips t
 #### On GDEX
 - `qdm`: 
 	- Some members with faulty data (3 for `tas`, 6 for `tasmax`), can be filtered through `bcd_me_helpers.filter_problems()`
+	- Some members include data bias-corrected and downscaled to PRISM over North America. These are not fully QC'ed and may be removed in a future version, use at your own risk. 
 - `qdm-qplad`:
 	- Some members with faulty data (8 for `tas`-based variables, 6 for `tasmax`-based variables), can be filtered through `bcd_me_helpers.filter_problems()`
 - `qdm-byyr`:
@@ -44,7 +45,9 @@ We strive to provide a perfect dataset, but every once in a while, a bug slips t
 	- GWL metadata confusing; these files are stored by calendar year, not GWL (with GWL 0.61 == 1982-2001)
 
 ### Citing the BCD-ME
-If you use the BCD-ME, please cite both the data descriptor in _Scientific Data_ and also the exact source of the data (GDEX, Earthmover, etc.). If you can, cite the version as well (present in the metadata of each file).  The data descriptor provides more details. 
+If you use the BCD-ME, please cite both the data descriptor in _Scientific Data_ and also the exact source of the data (GDEX, Earthmover, etc.). If you can, cite the version as well (present in the metadata of each file). The data descriptor provides more details. 
+
+If you use the BCD-ME for anything, also feel free to get in touch! We'd love to see how you're using the data and chat about making it better. 
 
 
 ### License
